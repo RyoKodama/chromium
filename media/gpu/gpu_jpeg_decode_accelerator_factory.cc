@@ -12,7 +12,7 @@
 #include "media/gpu/fake_jpeg_decode_accelerator.h"
 #include "media/gpu/features.h"
 
-#if BUILDFLAG(USE_V4L2_CODEC) && defined(ARCH_CPU_ARM_FAMILY)
+#if BUILDFLAG(USE_V4L2_CODEC) && defined(ARCH_CPU_ARM_FAMILY) && !BUILDFLAG(USE_LINUX_V4L2)
 #define USE_V4L2_JDA
 #endif
 

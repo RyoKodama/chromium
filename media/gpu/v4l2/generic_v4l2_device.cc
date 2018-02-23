@@ -474,7 +474,7 @@ bool GenericV4L2Device::OpenDevicePath(const std::string& path, Type type) {
     return false;
 
 #if BUILDFLAG(USE_LIBV4L2)
-  if (type == Type::kEncoder &&
+  if (
       HANDLE_EINTR(v4l2_fd_open(device_fd_.get(), V4L2_DISABLE_CONVERSION)) !=
           -1) {
     VLOGF(2) << "Using libv4l2 for " << path;

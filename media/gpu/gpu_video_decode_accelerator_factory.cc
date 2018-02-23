@@ -20,11 +20,15 @@
 #if defined(OS_MACOSX)
 #include "media/gpu/vt_video_decode_accelerator_mac.h"
 #endif
+#if defined(OS_LINUX)
 #if BUILDFLAG(USE_V4L2_CODEC)
 #include "media/gpu/v4l2_device.h"
+#if !BUILDFLAG(USE_LINUX_V4L2)
 #include "media/gpu/v4l2_slice_video_decode_accelerator.h"
+#endif
 #include "media/gpu/v4l2_video_decode_accelerator.h"
 #include "ui/gl/gl_surface_egl.h"
+#endif
 #endif
 #if defined(OS_ANDROID)
 #include "media/gpu/android/android_video_decode_accelerator.h"
@@ -96,9 +100,11 @@ GpuVideoDecodeAcceleratorFactory::GetDecoderCapabilities(
   vda_profiles = V4L2VideoDecodeAccelerator::GetSupportedProfiles();
   GpuVideoAcceleratorUtil::InsertUniqueDecodeProfiles(
       vda_profiles, &capabilities.supported_profiles);
+#if !BUILDFLAG(USE_LINUX_V4L2)
   vda_profiles = V4L2SliceVideoDecodeAccelerator::GetSupportedProfiles();
   GpuVideoAcceleratorUtil::InsertUniqueDecodeProfiles(
       vda_profiles, &capabilities.supported_profiles);
+#endif
 #endif
 #if BUILDFLAG(USE_VAAPI)
   vda_profiles = VaapiVideoDecodeAccelerator::GetSupportedProfiles();
@@ -111,6 +117,9 @@ GpuVideoDecodeAcceleratorFactory::GetDecoderCapabilities(
 #elif defined(OS_ANDROID)
   capabilities =
       AndroidVideoDecodeAccelerator::GetCapabilities(gpu_preferences);
+#elif defined(OS_LINUX)
+  capabilities.supported_profiles =
+      V4L2VideoDecodeAccelerator::GetSupportedProfiles();
 #endif
   return GpuVideoAcceleratorUtil::ConvertMediaToGpuDecodeCapabilities(
       capabilities);
@@ -141,7 +150,9 @@ GpuVideoDecodeAcceleratorFactory::CreateVDA(
 #endif
 #if BUILDFLAG(USE_V4L2_CODEC)
     &GpuVideoDecodeAcceleratorFactory::CreateV4L2VDA,
+#if !BUILDFLAG(USE_LINUX_V4L2)
     &GpuVideoDecodeAcceleratorFactory::CreateV4L2SVDA,
+#endif
 #endif
 #if BUILDFLAG(USE_VAAPI)
     &GpuVideoDecodeAcceleratorFactory::CreateVaapiVDA,
@@ -181,6 +192,7 @@ GpuVideoDecodeAcceleratorFactory::CreateD3D11VDA(
   return decoder;
 }
 
+#if !BUILDFLAG(USE_LINUX_V4L2)
 std::unique_ptr<VideoDecodeAccelerator>
 GpuVideoDecodeAcceleratorFactory::CreateDXVAVDA(
     const gpu::GpuDriverBugWorkarounds& workarounds,
@@ -192,6 +204,7 @@ GpuVideoDecodeAcceleratorFactory::CreateDXVAVDA(
       gpu_preferences));
   return decoder;
 }
+#endif
 #endif
 
 #if BUILDFLAG(USE_V4L2_CODEC)

@@ -98,13 +98,15 @@ class MEDIA_GPU_EXPORT GpuVideoDecodeAcceleratorFactory {
       const gpu::GpuDriverBugWorkarounds& workarounds,
       const gpu::GpuPreferences& gpu_preferences) const;
 #endif
-#if BUILDFLAG(USE_V4L2_CODEC)
+#if defined(OS_LINUX) && BUILDFLAG(USE_V4L2_CODEC)
   std::unique_ptr<VideoDecodeAccelerator> CreateV4L2VDA(
       const gpu::GpuDriverBugWorkarounds& workarounds,
       const gpu::GpuPreferences& gpu_preferences) const;
+#if !BUILDFLAG(USE_LINUX_V4L2)
   std::unique_ptr<VideoDecodeAccelerator> CreateV4L2SVDA(
       const gpu::GpuDriverBugWorkarounds& workarounds,
       const gpu::GpuPreferences& gpu_preferences) const;
+#endif
 #endif
 #if BUILDFLAG(USE_VAAPI)
   std::unique_ptr<VideoDecodeAccelerator> CreateVaapiVDA(

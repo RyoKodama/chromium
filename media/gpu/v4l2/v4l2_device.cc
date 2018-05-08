@@ -93,11 +93,21 @@ uint32_t V4L2Device::VideoPixelFormatToV4L2PixFmt(VideoPixelFormat format) {
 }
 
 // static
+#if BUILDFLAG(USE_LINUX_V4L2)
+uint32_t V4L2Device::VideoCodecProfileToV4L2PixFmt(VideoCodecProfile profile,
+                                                  bool slice_based) {
+  if (profile >= H264PROFILE_MIN && profile <= H264PROFILE_MAX) {
+    return V4L2_PIX_FMT_H264;
+  } else if (profile >= VP8PROFILE_MIN && profile <= VP8PROFILE_MAX) {
+    return V4L2_PIX_FMT_VP8;
+  } else {
+    LOG(FATAL) << "Add more cases as needed";
+    return 0;
+  }
+}
+#else
 uint32_t V4L2Device::VideoCodecProfileToV4L2PixFmt(VideoCodecProfile profile,
                                                    bool slice_based) {
-#if BUILDFLAG(USE_LINUX_V4L2)
-  slice_based = false;
-#endif
   if (profile >= H264PROFILE_MIN && profile <= H264PROFILE_MAX) {
     if (slice_based)
       return V4L2_PIX_FMT_H264_SLICE;
@@ -118,6 +128,7 @@ uint32_t V4L2Device::VideoCodecProfileToV4L2PixFmt(VideoCodecProfile profile,
     return 0;
   }
 }
+#endif
 
 // static
 std::vector<VideoCodecProfile> V4L2Device::V4L2PixFmtToVideoCodecProfiles(
